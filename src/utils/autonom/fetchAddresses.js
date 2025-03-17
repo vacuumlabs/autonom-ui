@@ -1,11 +1,16 @@
 import fs from "fs";
 
-const DEPLOYMENT_FILE_PATH = "/Users/goktug/Desktop/deneme/autonom/contracts/deployments/local/l2.json";
+const DEPLOYMENT_FILE_PATH = process.env.DEPLOYMENT_FILE_PATH;
 const OUTPUT_FILE = "./src/utils/autonom/output/l2.js";
 
 // helper function to safely extract nested values
 function getSafeValue(obj, keys, defaultValue = "MISSING_ADDRESS") {
     return keys.reduce((acc, key) => (acc && acc[key] ? acc[key] : defaultValue), obj);
+}
+
+if (!DEPLOYMENT_FILE_PATH) {
+    console.error("Deployment file path is required. Set the DEPLOYMENT_FILE_PATH environment variable.");
+    process.exit(1);
 }
 
 try {
