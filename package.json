@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "rollup -c",
-    "dev": "rollup -c -w",
+    "dev": "node src/utils/autonom/fetchAddresses.js && rollup -c -w",
     "start": "sirv build --single",
     "deploy-ipfs": "npm run build && npx ipfs-deploy build"
   },
