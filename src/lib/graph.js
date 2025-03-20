@@ -163,7 +163,7 @@ export async function getUserPositions() {
 	const filter = contract.filters.PositionUpdated(null, _address);
 	const _events = await contract.queryFilter(filter, -100);
 
-	// console.log('_events', _events);
+	console.log('_events', _events);
 
 	let _details = {};
 	for (const ev of _events) {
@@ -197,55 +197,55 @@ export async function getUserPositions() {
 
 	// graph
 
-	const response = await fetch(graph_url, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({
-			query: `
-				query {
-				  positions(
-				    orderBy: createdAtTimestamp,
-				    orderDirection: desc,
-				    first:50,
-				    where: {user: "${_address}"}
-				  ) {
-				  	id,
-				    productId,
-				    currency,
-				    margin,
-				    fee,
-				    size,
-				    leverage,
-				    price,
-				    isLong,
-				    createdAtTimestamp
-				  }
-				}
-			`
-		})
-	});
+	// const response = await fetch(graph_url, {
+	// 	method: 'POST',
+	// 	headers: {
+	// 		'Content-Type': 'application/json',
+	// 	},
+	// 	body: JSON.stringify({
+	// 		query: `
+	// 			query {
+	// 			  positions(
+	// 			    orderBy: createdAtTimestamp,
+	// 			    orderDirection: desc,
+	// 			    first:50,
+	// 			    where: {user: "${_address}"}
+	// 			  ) {
+	// 			  	id,
+	// 			    productId,
+	// 			    currency,
+	// 			    margin,
+	// 			    fee,
+	// 			    size,
+	// 			    leverage,
+	// 			    price,
+	// 			    isLong,
+	// 			    createdAtTimestamp
+	// 			  }
+	// 			}
+	// 		`
+	// 	})
+	// });
 
-	const json = await response.json();
+	// const json = await response.json();
 
-	let _positions = json.data && json.data.positions;
+	// let _positions = json.data && json.data.positions;
 
-	let _keys = _positions.map((e) => {return e.id;});
+	// let _keys = _positions.map((e) => {return e.id;});
 
-	let _raw_positions = await getPositions(_keys);
+	// let _raw_positions = await getPositions(_keys);
 
-	// make sure graph positions actually exist in the contract for times the graph hasn't yet updated
-	let actual_positions = [];
-	let i = 0;
-	for (const p of _positions) {
-		if (_raw_positions[i] && _raw_positions[i].size && _raw_positions[i].size.toString() * 1 > 0) {
-			actual_positions.push(p);
-		}
-		i++;
-	}
+	// // make sure graph positions actually exist in the contract for times the graph hasn't yet updated
+	// let actual_positions = [];
+	// let i = 0;
+	// for (const p of _positions) {
+	// 	if (_raw_positions[i] && _raw_positions[i].size && _raw_positions[i].size.toString() * 1 > 0) {
+	// 		actual_positions.push(p);
+	// 	}
+	// 	i++;
+	// }
 
-	let graph_positions = formatPositions(actual_positions);
+	// let graph_positions = formatPositions(actual_positions);
 
 	// console.log('graph_positions', graph_positions);
 
@@ -257,12 +257,12 @@ export async function getUserPositions() {
 			added_key[item.key] = true;
 		}
 	}
-	for (const item of graph_positions) {
-		if (!added_key[item.key]) {
-			unique_positions.push(item);
-			added_key[item.key] = true;
-		}
-	}
+	// for (const item of graph_positions) {
+	// 	if (!added_key[item.key]) {
+	// 		unique_positions.push(item);
+	// 		added_key[item.key] = true;
+	// 	}
+	// }
 
 	positions.set(unique_positions);
 	setActiveProducts();
