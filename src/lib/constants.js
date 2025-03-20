@@ -73,7 +73,9 @@ export const ABIS = {
 
 export const CHAINDATA = {
 	31338: {
+		name: 'Local Chain',
 		label: 'localhost',
+		rpc: 'http://localhost:8555',
 		router: CONTRACT_ADDRESSES.dexes.cap.router,
 		explorer: 'http://localhost:8555',
 		currencies: {
@@ -87,22 +89,4 @@ export const CHAINDATA = {
 		},
 		cap: CONTRACT_ADDRESSES.dexes.cap.token.cap
 	}
-	// 42161: {
-	// 	label: 'Arbitrum',
-	// 	router: '0x5ABFF8F8D5b13253dCAB1e427Fdb3305cA620119',
-	// 	explorer: 'https://arbiscan.io',
-	// 	rpc: 'https://arb1.arbitrum.io/rpc', // for walletconnect
-	// 	currencies: {
-	// 		weth: ADDRESS_ZERO,
-	// 		usdc: '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8'
-	// 	},
-	// 	poolInception: {
-	// 		weth: 1637154307000,
-	// 		usdc: 1637154307000,
-	// 		cap: 1637154307000
-	// 	},
-	// 	cap: '0x031d35296154279DC1984dCD93E392b1f946737b'
-	// }
 }
-
-console.log('chain data: ', CHAINDATA);
