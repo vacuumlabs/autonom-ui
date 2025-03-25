@@ -28,7 +28,8 @@ let sidebarWidth = 300;
 export function initChart() {
 
 	let script = document.createElement("script");
-	script.setAttribute("src", "https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js");
+	// IMPORTANT: Do not change the package version as there are some breaking changes
+	script.setAttribute("src", "https://unpkg.com/lightweight-charts@^4/dist/lightweight-charts.standalone.production.js");
 	document.body.appendChild(script);
 
 	script.addEventListener("load", scriptLoaded, false);
@@ -196,10 +197,13 @@ export async function loadCandles(_resolution, _start, _end, prepend, productOve
 
 	// console.log('start, end', start, end, new Date(start).toString(), new Date(end).toString());
 
-	const url_start = encodeURIComponent(new Date(start).toUTCString());
-	const url_end = encodeURIComponent(new Date(end).toUTCString());
+	const url_start = Math.floor(start / 1000);
+	const url_end = Math.floor(end / 1000);
 
-	const response = await fetch(`https://api.exchange.coinbase.com/products/${_product}/candles?granularity=${_resolution}&start=${url_start}&end=${url_end}`);
+	// TODO: update this based on the used backend, we're using mock price provider which expects in minutes
+	const resolution_mins = Number(_resolution) / 60; 
+
+	const response = await fetch(`http://localhost:3000/products/${_product}/candles?granularity=${resolution_mins}m&start=${url_start}&end=${url_end}`);
 	const json = await response.json();
 
 	if (!json || !Array.isArray(json)) {
@@ -212,26 +216,28 @@ export async function loadCandles(_resolution, _start, _end, prepend, productOve
 		for (const item of json) {
 			prepend_set.push({
 				time: correctedTime(item[0]),
-				low: item[1],
+				open: item[1],
 				high: item[2],
-				open: item[3],
+				low: item[3],
 				close: item[4]
 			});
 		}
-		prepend_set.reverse();
+		// If backend returns prices sorted by decreasing timestamp, apply reverse function
+		// prepend_set.reverse();
 		candles = prepend_set.concat(candles);
 	} else {
 		candles = [];
 		for (const item of json) {
 			candles.push({
 				time: correctedTime(item[0]),
-				low: item[1],
+				open: item[1],
 				high: item[2],
-				open: item[3],
+				low: item[3],
 				close: item[4]
 			});
 		}
-		candles.reverse();
+		// If backend returns prices sorted by decreasing timestamp, apply reverse function
+		// candles.reverse();
 	}
 
 	//console.log('data', data);
@@ -260,15 +266,15 @@ export function onNewPrice(price, timestamp, _product) {
 
 	timestamp = correctedTime(timestamp/1000);
 
-	const resolution = get(chartResolution);
+	const resolution = Number(get(chartResolution));
 
 	if (timestamp >= lastCandle.time + resolution) {
 		// new candle
 		let candle = {
 			time: parseInt(resolution * parseInt(timestamp/resolution)),
-			low: price,
-			high: price,
 			open: price,
+			high: price,
+			low: price,
 			close: price
 		}
 		candles.push(candle);
