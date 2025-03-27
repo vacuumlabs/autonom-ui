@@ -214,6 +214,9 @@ export async function loadCandles(_resolution, _start, _end, prepend, productOve
 		// prepend candles to existing set
 		let prepend_set = [];
 		for (const item of json) {
+			// TODO: This is temporary solution to fix duplicate data as the backend includes both start time and end time while returning data
+			const candleTime = correctedTime(item[0]);
+			if (candles.length && candleTime === candles[0].time) continue; // Skip duplicate
 			prepend_set.push({
 				time: correctedTime(item[0]),
 				open: item[1],
@@ -228,6 +231,9 @@ export async function loadCandles(_resolution, _start, _end, prepend, productOve
 	} else {
 		candles = [];
 		for (const item of json) {
+			// TODO: This is temporary solution to fix duplicate data as the backend includes both start time and end time while returning data
+			const candleTime = correctedTime(item[0]);
+			if (candles.length && candleTime === candles[0].time) continue; // Skip duplicate
 			candles.push({
 				time: correctedTime(item[0]),
 				open: item[1],
