@@ -1,6 +1,6 @@
 <script>
 	import Modal from '../modals/Modal.svelte'
-	import { connectMetamask, connectWalletConnect } from '../../lib/wallet'
+	import { connectMetamask } from '../../lib/wallet'
 	
 </script>
 
@@ -48,11 +48,6 @@
 	<div class='row' on:click={() => {connectMetamask()}} data-intercept="true">
 		<img src='https://raw.githubusercontent.com/MetaMask/brand-resources/master/SVG/metamask-fox.svg'>
 		<div>MetaMask</div>
-	</div>
-
-	<div class='row' on:click={() => {connectWalletConnect()}} data-intercept="true">
-		<img src='https://raw.githubusercontent.com/WalletConnect/walletconnect-assets/master/Icon/Blue%20(Default)/Icon.svg'>
-		<div>WalletConnect</div>
 	</div>
 
 </Modal>

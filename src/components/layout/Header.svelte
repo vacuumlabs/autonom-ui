@@ -83,12 +83,9 @@
 	<div class='inner' class:home={!$currentPage || $currentPage == 'home'}>
 
 		<div class='left'>
-			<a class='logo' class:active={!$currentPage || $currentPage == 'home'} href='/'>
-				<img src='/logos/CAP.svg' title='CAP Home' alt='CAP Home' />
-			</a>
+			<!-- TODO (autonom): add Autonom logo here -->
 			<a class='link' class:active={$currentPage == 'trade'} href='#/trade'>Trade</a>
 			<a class='link' class:active={$currentPage == 'pool'} href='#/pool'>Pool</a>
-			<a class='link' href='https://docs.cap.finance' target='_blank'>Docs</a>
 		</div>
 
 		<div class='right'>

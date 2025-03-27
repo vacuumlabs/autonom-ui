@@ -287,11 +287,4 @@
 		
 	</div>
 
-	{#if !$address}
-	<div class='note'>CAP is an open protocol to trade crypto perpetuals with low fees. <a data-intercept="true" on:click={() => {showModal('Connect')}}>Connect your wallet</a> on Arbitrum to get started.</div>
-	{:else if $address && balance * 1 == 0}
-	<div class='note'><a href='https://docs.cap.finance/setting-up-your-wallet' target='_blank'>Bridge funds</a> to Arbitrum to start trading.</div>
-	{/if}
-	
-
 </div>

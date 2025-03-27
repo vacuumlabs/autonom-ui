@@ -26,7 +26,7 @@
 		grid-template-rows: calc(var(--ticker-height) + var(--chart-resolution-height) + var(--chart-height) + 3 * var(--grid-gap)) auto;
 		background-color: var(--rich-black-fogra);
 		position: absolute;
-		top: calc(var(--header-height) + var(--grid-gap) + 44px);
+		top: calc(var(--header-height) + var(--grid-gap));
 		bottom: 0;
 		left: 0;
 		right: 0;

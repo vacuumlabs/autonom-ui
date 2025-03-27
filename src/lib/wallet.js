@@ -6,10 +6,12 @@ import { CHAINDATA } from './constants'
 import { showToast, hideModal } from './utils'
 import { chainId, signer, provider, address } from './stores'
 
-let _provider = new ethers.providers.JsonRpcProvider('https://arb1.arbitrum.io/rpc');
+const DEFAULT_CHAIN_ID = Number(process.env.DEFAULT_CHAIN_ID);
+const DEFAULT_RPC_URL = process.env.DEFAULT_RPC_URL;
+
+let _provider = new ethers.providers.JsonRpcProvider(DEFAULT_RPC_URL);
 provider.set(_provider);
-chainId.set(42161);
-let _walletConnect;
+chainId.set(DEFAULT_CHAIN_ID);
 
 export async function checkMetamaskSession() {
 	if (window.ethereum) connectMetamask(true);
@@ -49,72 +51,19 @@ export async function connectMetamask(resume) {
 
 }
 
-export async function connectWalletConnect() {
-
-	let script = document.createElement("script");
-	script.setAttribute("src", "https://unpkg.com/@walletconnect/web3-provider@1.6.6/dist/umd/index.min.js");
-	document.body.appendChild(script);
-
-	script.addEventListener("load", scriptLoaded, false);
-
-	async function scriptLoaded() {
-
-		_walletConnect = new WalletConnectProvider.default({
-			rpc: {
-				42161: CHAINDATA[42161].rpc
-			}
-		});
-
-		await _walletConnect.enable();
-
-		hideModal();
-
-		_provider = new ethers.providers.Web3Provider(_walletConnect);
-
-		provider.set(_provider);
-		const network = await _provider.getNetwork();
-		chainId.set(network.chainId);
-
-		handleAccountsChanged();
-
-		// Subscribe to accounts change
-		_walletConnect.on("accountsChanged", handleAccountsChanged);
-
-		// Subscribe to chainId change
-		_walletConnect.on("chainChanged", (chainId) => {
-			window.location.reload();
-		});
-
-		// Subscribe to session disconnection
-		_walletConnect.on("disconnect", (code, reason) => {
-			console.log('disconnect', code, reason);
-			window.location.reload();
-		});
-
-	}
-
-}
-
-export async function disconnectWallet(force) {
-	if (force && _walletConnect) await _walletConnect.disconnect();
-	signer.set(null);
-}
-
 export async function switchChains() {
 
-	let wallet;
-	if (window.ethereum) {
-		wallet = window.ethereum;
-	} else {
-		wallet = _walletConnect;
-	}
+	let wallet = window.ethereum;
 
 	if (!wallet) return showToast("Can't connect to wallet.");
+
+	const hexDefaultChainId = "0x" + DEFAULT_CHAIN_ID.toString(16);
+	console.log('chainIDDD: ', hexDefaultChainId);
 
 	try {
 		await wallet.request({
 			method: 'wallet_switchEthereumChain',
-			params: [{ chainId: '0xA4B1' }],
+			params: [{ chainId: hexDefaultChainId }],
 		});
 	} catch (switchError) {
 		// This error code indicates that the chain has not been added to MetaMask.
@@ -123,15 +72,15 @@ export async function switchChains() {
 				await wallet.request({
 					method: 'wallet_addEthereumChain',
 					params: [{
-						chainId: '0xA4B1',
-						chainName: 'Arbitrum One',
-						rpcUrls: [CHAINDATA[42161]['rpc']],
+						chainId: hexDefaultChainId,
+						chainName: [CHAINDATA[DEFAULT_CHAIN_ID]['name']],
+						rpcUrls: [CHAINDATA[DEFAULT_CHAIN_ID]['rpc']],
 						nativeCurrency: {
 							name: 'ETH',
 							symbol: 'ETH',
 							decimals: 18
 						},
-						blockExplorerUrls: [CHAINDATA[42161]['explorer']]
+						blockExplorerUrls: [CHAINDATA[DEFAULT_CHAIN_ID]['explorer']]
 					}],
 				});
 			} catch (addError) {
@@ -151,8 +100,4 @@ async function handleAccountsChanged() {
 	amplitude.getInstance().setUserId(_address);
 	hydrateData();
 	initEventListeners();
-}
-
-function handleDisconnect() {
-
 }

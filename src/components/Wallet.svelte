@@ -11,9 +11,15 @@
 
 	import { shortAddress, showModal } from '../lib/utils'
 
+	import {CHAINDATA} from '../lib/constants'
+
 	onMount(async () => {
 		await checkMetamaskSession();
 	});
+
+	// TODO (autonom): Find another solution when we support multiple L2 chains
+	const DEFAULT_CHAIN_ID = Number(process.env.DEFAULT_CHAIN_ID);
+	const CHAIN_NAME = CHAINDATA[DEFAULT_CHAIN_ID]?.name;
 
 </script>
 
@@ -56,7 +62,7 @@
 <div class='wallet'>
 
 	{#if $address && $wrongNetwork}
-	<div class='wrong-network' on:click={() => {switchChains()}}>Switch to Arbitrum</div>
+	<div class='wrong-network' on:click={() => {switchChains()}}>Switch to {CHAIN_NAME}</div>
 	{/if}
 
 	{#if $address}

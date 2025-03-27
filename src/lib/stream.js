@@ -76,47 +76,45 @@ let s;
 
 function getPrice(product_id) {
 
-	// fetch('https://api.exchange.coinbase.com/products/' + product_id + '/ticker')
-	// .then((res) => { return res.json() })
-	// .then((json) => {
-	// 	console.log('price: ', price);
+	fetch('http://localhost:3000/products/' + product_id + '/ticker')
+	.then((res) => { return res.json() })
+	.then((json) => {
+		lastMessageReceived = Date.now();
 
-	// 	lastMessageReceived = Date.now();
+		const price = json.price;
 
-	// 	const price = json.price;
+		prices.update((x) => {
+			x[product_id] = price * 1;
+			return x;
+		});
 
-	// 	prices.update((x) => {
-	// 		x[product_id] = price * 1;
-	// 		return x;
-	// 	});
+		// update chart
+		onNewPrice(price, Date.now(), product_id);
 
-	// 	// update chart
-	// 	onNewPrice(price, Date.now(), product_id);
+		if (product_id == get(productId)) {
+			setTitle(product_id, price);
+		}
 
-	// 	if (product_id == get(productId)) {
-	// 		setTitle(product_id, price);
-	// 	}
-
-	// });
+	});
 
 }
 
-// let poller;
-// export function initWebsocket() {
+let poller;
+export function initWebsocket() {
 
-// 	// Poll
-// 	clearInterval(poller);
+	// Poll
+	clearInterval(poller);
 
-// 	for (const product_id of ['ETH-USD', 'BTC-USD']) {
-// 		getPrice(product_id);
-// 	}
+	for (const product_id of ['ETH-USD']) {
+		getPrice(product_id);
+	}
 
-// 	// Poll for prices every 5 sec
-// 	poller = setInterval(() => {
-// 		for (const product_id of ['ETH-USD', 'BTC-USD']) {
-// 			getPrice(product_id);
-// 		}
-// 	}, 5000);
+	// Poll for prices every 5 sec
+	poller = setInterval(() => {
+		for (const product_id of ['ETH-USD']) {
+			getPrice(product_id);
+		}
+	}, 5000);
 
 // 	// Stream
 
@@ -217,9 +215,5 @@ function getPrice(product_id) {
 // 	ws.onerror = (e) => {
 // 		console.log('Websocket error', e);
 // 	}
-
-// }
-
-export function initWebsocket() {
 
 }

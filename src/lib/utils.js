@@ -165,22 +165,16 @@ export function hideModal() {
 
 // Routing
 export function loadRoute(path, isInitial) {
-	if (!path || path == '/' || path.includes('/home')) {
-		component.set(Home);
-		currentPage.set('home');
-		document.title = `Free Decentralized Perpetual Exchange | CAP`;
-	} else if (path.includes('/trade')) {
+	// TODO (autonom): As we do not want to have things related to CAP, we removed Home and Buy pages from the routes
+	// However, still keeping those page implementation in the repo in case we want to implement smth similar to them.
+	if (!path || path == '/' || path.includes('/trade')) {
 		component.set(Trade);
 		currentPage.set('trade');
-		document.title = `Trade | CAP`;
+		document.title = `Trade | Autonom`;
 	} else if (path.includes('/pool')) {
 		component.set(Pool);
 		currentPage.set('pool');
-		document.title = `Pool | CAP`;
-	} else if (path.includes('/buy')) {
-		component.set(Buy);
-		currentPage.set('buy');
-		document.title = `Buy CAP | CAP`;
+		document.title = `Pool | Autonom`;
 	}
 	hydrateData();
 }
