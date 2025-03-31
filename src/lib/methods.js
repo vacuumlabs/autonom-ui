@@ -680,3 +680,27 @@ export async function cancelOrder(productId, currencyLabel, isLong) {
 	}
 
 }
+
+// TODO: If we have separate endpoint for fetching price at specific timestamp (without rounding-up), use that insted
+export async function fetchClosePriceAtTimestamp(timestampSec, productSymbol, resolution = 60) {
+	const resolution_mins = resolution / 60;
+
+	const url = `http://localhost:3000/products/${productSymbol}/candles?granularity=${resolution_mins}m&start=${timestampSec}&end=${timestampSec}`;
+
+	try {
+		const response = await fetch(url);
+		const data = await response.json();
+
+		if (!Array.isArray(data) || data.length === 0) {
+			console.warn('No candle data returned for timestamp:', timestampSec);
+			return null;
+		}
+
+		const candle = data[0];
+		const closePrice = candle[4]; // [timestamp, open, high, low, close]
+		return closePrice;
+	} catch (error) {
+		console.error('Error fetching candle:', error);
+		return null;
+	}
+}
