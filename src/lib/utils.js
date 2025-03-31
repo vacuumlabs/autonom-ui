@@ -354,7 +354,6 @@ export async function getUPL(position, latestPrice) {
 
 	// compute adjustment factor using original (unadjusted) entry price
 	const adjustmentFactor = adjustedPriceAtEntry / position.price;
-	console.log('adjustment factor: ', adjustmentFactor);
 
 	// adjusted entry price
 	const adjustedEntryPrice = position.price * adjustmentFactor;
