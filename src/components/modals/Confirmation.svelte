@@ -47,7 +47,7 @@
 
 	function findExistingPosition() {
 		for (const pos of $positions) {
-			if (pos.currencyLabel == data.currencyLabel && pos.isLong == data.isLong) return pos;
+			if (pos.productId == data.productId && pos.currencyLabel == data.currencyLabel && pos.isLong == data.isLong) return pos;
 		}
 	}
 
