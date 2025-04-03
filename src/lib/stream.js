@@ -8,6 +8,8 @@ import { onNewPrice } from './chart'
 
 import { setTitle, shortSymbol, showToast, hideToast } from './utils'
 
+import { PRODUCTS } from './products'
+
 let ws;
 let h;
 let subscribedProducts = {
@@ -105,13 +107,13 @@ export function initWebsocket() {
 	// Poll
 	clearInterval(poller);
 
-	for (const product_id of ['ETH-USD']) {
+	for (const product_id of Object.keys(PRODUCTS)) {
 		getPrice(product_id);
 	}
 
 	// Poll for prices every 5 sec
 	poller = setInterval(() => {
-		for (const product_id of ['ETH-USD']) {
+		for (const product_id of Object.keys(PRODUCTS)) {
 			getPrice(product_id);
 		}
 	}, 5000);
