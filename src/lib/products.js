@@ -1,3 +1,6 @@
+// IMPORTANT: ETH-USD should be kept in products in any deployment for two main reasons
+// 1. It's default product in autonom and hardcoded in some other parts as a fallback value
+// 2. Autonom supports two different collaterals (weth and usdc). We need to know price of weth in some parts. So, we need to get ETH-USD price data from price service.
 export const PRODUCTS = {
 	'ETH-USD': {
 		hours: '24/7',
@@ -10,7 +13,7 @@ export const PRODUCTS = {
 			usdc: 8000000
 		}
 	},
-	'BTC-USD': {
+	'AAPL-USD': {
 		hours: '24/7',
 		logo: '/logos/BTC.svg',
 		baseSpread: 0.0001,
