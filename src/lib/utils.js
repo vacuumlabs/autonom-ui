@@ -12,7 +12,7 @@ import Pool from '../components/pages/Pool.svelte'
 import Buy from '../components/pages/Buy.svelte'
 
 import { hydrateData } from './data'
-import { getProduct } from './methods'
+import { fetchClosePriceAtTimestamp, getProduct } from './methods'
 import { parseErrorToString } from './errors'
 
 import { component, currentPage, activeModal, toast, chainId, activeProducts, productId, positions } from './stores'
@@ -123,13 +123,22 @@ export function setCachedLeverage(_productId, _leverage) {
 }
 
 // Liq price
-export function calculateLiquidationPrice(params) {
-	const { productId, price, leverage, isLong } = params;
+export async function calculateLiquidationPrice(params) {
+	const { price, leverage, isLong, productId, timestamp } = params;
+
+	if (!price || !leverage) return null;
+
+	const adjustedEntryPrice = await fetchClosePriceAtTimestamp(timestamp, productId);
+	if (!adjustedEntryPrice) {
+		console.warn('Missing adjusted entry price');
+		return null;
+	}
+
 	let liquidationPrice;
 	if (isLong) {
-		liquidationPrice = price * (1 - 8000 / 10000 / leverage);
+		liquidationPrice = adjustedEntryPrice * (1 - 8000 / 10000 / leverage);
 	} else {
-		liquidationPrice = price * (1 + 8000 / 10000 / leverage);
+		liquidationPrice = adjustedEntryPrice * (1 + 8000 / 10000 / leverage);
 	}
 	return liquidationPrice;
 }
@@ -336,15 +345,30 @@ export async function getUPL(position, latestPrice) {
 	let upl = 0;
 	if (position.price * 1 == 0) return undefined;
 
+	// fetch the adjusted price at the time of entry
+	const adjustedPriceAtEntry = await fetchClosePriceAtTimestamp(position.timestamp, position.productId);
+	if (!adjustedPriceAtEntry) {
+		console.warn('Failed to fetch historical price for adjustment');
+		return undefined;
+	}
+
+	// compute adjustment factor using original (unadjusted) entry price
+	const adjustmentFactor = adjustedPriceAtEntry / position.price;
+
+	// TODO: This is implemented in a way that we agreed on Brian but in the current granularity levels adjustedEntryPrice = adjustedPriceAtEntry
+	// and calculating adjusting factor is unnecessary. Check this again when we have a real DxFeed integration
+	// adjusted entry price
+	const adjustedEntryPrice = position.price * adjustmentFactor;
+
 	let priceImpact = getPriceImpact(position.size, position.productId, position.currencyLabel);
 	if (latestPrice) {
 		const productInfo = await getProduct(position.productId);
 		if (position.isLong) {
 			latestPrice = latestPrice * (1 + priceImpact / 100);
-			upl = position.size * (latestPrice * 1 - position.price * 1) / position.price;
+			upl = position.size * (latestPrice - adjustedEntryPrice) / adjustedEntryPrice;
 		} else {
 			latestPrice = latestPrice * (1 - priceImpact / 100);
-			upl = position.size * (position.price * 1 - latestPrice * 1) / position.price;
+			upl = position.size * (adjustedEntryPrice - latestPrice) / adjustedEntryPrice;
 		}
 		// Add interest
 		let interest = await getInterest(position);
