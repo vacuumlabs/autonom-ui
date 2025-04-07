@@ -355,6 +355,8 @@ export async function getUPL(position, latestPrice) {
 	// compute adjustment factor using original (unadjusted) entry price
 	const adjustmentFactor = adjustedPriceAtEntry / position.price;
 
+	// TODO: This is implemented in a way that we agreed on Brian but in the current granularity levels adjustedEntryPrice = adjustedPriceAtEntry
+	// and calculating adjusting factor is unnecessary. Check this again when we have a real DxFeed integration
 	// adjusted entry price
 	const adjustedEntryPrice = position.price * adjustmentFactor;
 
