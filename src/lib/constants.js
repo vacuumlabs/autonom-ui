@@ -88,5 +88,22 @@ export const CHAINDATA = {
 			cap: 1637154307000
 		},
 		cap: CONTRACT_ADDRESSES.dexes.cap.token.cap
+	},
+	421614: {
+    name: 'Arbitrum Sepolia',
+    label: 'arbitrum-sepolia',
+		rpc: 'https://sepolia-rollup.arbitrum.io/rpc',
+		router: CONTRACT_ADDRESSES.dexes.cap.router,
+		explorer: 'https://sepolia-rollup.arbitrum.io/rpc',
+		currencies: {
+			weth: ADDRESS_ZERO,
+			usdc: CONTRACT_ADDRESSES.dexes.cap.token.usdc
+		},
+		poolInception: {
+			weth: 1637154307000,
+			usdc: 1637154307000,
+			cap: 1637154307000
+		},
+		cap: CONTRACT_ADDRESSES.dexes.cap.token.cap
 	}
 }
