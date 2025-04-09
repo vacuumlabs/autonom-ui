@@ -161,7 +161,9 @@ export async function getUserPositions() {
 	if (!contract) return;
 
 	const filter = contract.filters.PositionUpdated(null, _address);
-	const _events = await contract.queryFilter(filter, -100);
+	// TODO: Subgraph setup is needed to get all the historical positions. For now, we increased the block range
+	// to check positions created within ~3 days but it will still not be able to fetch the positions before 1000000 blocks
+	const _events = await contract.queryFilter(filter, -1000000);
 
 	console.log('_events', _events);
 
