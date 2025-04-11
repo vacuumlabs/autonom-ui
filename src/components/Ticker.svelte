@@ -1,7 +1,5 @@
 <script>
 
-	import Volume from './Volume.svelte'
-
 	import { showModal, showToast, shortSymbol, displayPricePercentChange, formatToDisplay } from '../lib/utils'
 	import { address, productId, product, prices, prices24h } from '../lib/stores'
 	import { CARET_DOWN } from '../lib/icons'
@@ -101,10 +99,5 @@
 
 	</div>
 	{/if}
-
-	<div class='volume'>
-		<div class='value'><Volume/></div>
-		<div class='label'>Protocol Volume</div>
-	</div>
 
 </div>
