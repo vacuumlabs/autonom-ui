@@ -5,7 +5,6 @@
 	import Chart from '../Chart.svelte'
 	import Order from '../Order.svelte'
 	import Positions from '../Positions.svelte'
-	import History from '../History.svelte'
 
 	let panel = 'positions';
 
@@ -136,15 +135,11 @@
 
 		<div class='account-nav'>
 			<a class:active={panel == 'positions'} on:click={() => {selectPanel('positions')}}>Positions</a>
-			<a class:active={panel == 'history'} on:click={() => {selectPanel('history')}}>History</a>
 		</div>
 
 		<div class='account-list'>
 			{#if panel == 'positions'}
 				<Positions />
-			{/if}
-			{#if panel == 'history'}
-				<History />
 			{/if}
 		</div>
 

@@ -78,49 +78,49 @@ export async function getUserOrders() {
 		_details[ev.args.key] = ev.args;
 	}
 
-	// graph
+	// // graph
 
-	const response = await fetch(graph_url, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({
-			query: `
-				query {
-				  orders(
-				    orderBy: createdAtTimestamp,
-				    orderDirection: desc,
-				    first:30,
-				    where: {user: "${_address}"}
-				  ) {
-				  	id,
-				    productId,
-				    currency,
-				    margin,
-				    size,
-				    isClose,
-				    isLong,
-				    createdAtTimestamp
-				  }
-				}
-			`
-		})
-	});
+	// const response = await fetch(graph_url, {
+	// 	method: 'POST',
+	// 	headers: {
+	// 		'Content-Type': 'application/json',
+	// 	},
+	// 	body: JSON.stringify({
+	// 		query: `
+	// 			query {
+	// 			  orders(
+	// 			    orderBy: createdAtTimestamp,
+	// 			    orderDirection: desc,
+	// 			    first:30,
+	// 			    where: {user: "${_address}"}
+	// 			  ) {
+	// 			  	id,
+	// 			    productId,
+	// 			    currency,
+	// 			    margin,
+	// 			    size,
+	// 			    isClose,
+	// 			    isLong,
+	// 			    createdAtTimestamp
+	// 			  }
+	// 			}
+	// 		`
+	// 	})
+	// });
 
-	const json = await response.json();
+	// const json = await response.json();
 
-	let graph_orders = json.data && json.data.orders;
+	// let graph_orders = json.data && json.data.orders;
 
-	// console.log('graph_orders', graph_orders);
+	// // console.log('graph_orders', graph_orders);
 
-	if (!graph_orders) graph_orders = [];
+	// if (!graph_orders) graph_orders = [];
 
-	for (const order of graph_orders) {
-		_details[order.id] = order;
-	}
+	// for (const order of graph_orders) {
+	// 	_details[order.id] = order;
+	// }
 
-	let graph_keys = graph_orders.map((e) => {return e.id;});
+	// let graph_keys = graph_orders.map((e) => {return e.id;});
 
 	let keys = _events.map((e) => {return e.args.key;});
 
@@ -130,10 +130,10 @@ export async function getUserOrders() {
 		if (unique_keys.includes(k)) continue;
 		unique_keys.push(k);
 	}
-	for (const k of graph_keys) {
-		if (unique_keys.includes(k)) continue;
-		unique_keys.push(k);
-	}
+	// for (const k of graph_keys) {
+	// 	if (unique_keys.includes(k)) continue;
+	// 	unique_keys.push(k);
+	// }
 
 	let _raw_orders = await getOrders(unique_keys);
 
