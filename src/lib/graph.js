@@ -4,12 +4,16 @@ import { get } from 'svelte/store'
 import { ADDRESS_ZERO, HISTORY_COUNT, CHAINDATA } from './constants'
 import { getContract } from './contracts'
 import { getOrders, getPositions } from './methods'
+import { PRODUCTS } from './products'
 
-import { formatUnits, formatTrades, formatOrders, formatPositions, setActiveProducts, getChainData } from './utils'
+import { toBytes32, formatUnits, formatTrades, formatOrders, formatPositions, setActiveProducts, getChainData } from './utils'
 import { history, orders, positions, address, poolStats, chainId } from './stores'
 
 const graph_url = 'https://api.thegraph.com/subgraphs/name/0xcap/cap3';
 const uniswap_arbitrum_url = 'https://api.thegraph.com/subgraphs/name/ianlapham/arbitrum-dev';
+const VALID_PRODUCT_IDS = Object.keys(PRODUCTS).map((symbol) =>
+	toBytes32(symbol)
+);
 
 export async function getVolume() {
 
@@ -161,25 +165,20 @@ export async function getUserPositions() {
 	if (!contract) return;
 
 	const filter = contract.filters.PositionUpdated(null, _address);
-	const _events = await contract.queryFilter(filter, -100);
+	// TODO: Subgraph setup is needed to get all the historical positions. For now, we increased the block range
+	// to check positions created within ~3 days but it will still not be able to fetch the positions before 1000000 blocks
+	const _events = await contract.queryFilter(filter, -1000000);
 
 	console.log('_events', _events);
 
 	let _details = {};
 	for (const ev of _events) {
-		_details[ev.args.key] = ev.args;
+		if(VALID_PRODUCT_IDS.includes(ev.args.productId)) {
+			_details[ev.args.key] = ev.args;
+		}
 	}
 
-	let keys = _events.map((e) => {return e.args.key;});
-
-	// console.log('keys', keys);
-
-	// uniq keys
-	let unique_keys = [];
-	for (const k of keys) {
-		if (unique_keys.includes(k)) continue;
-		unique_keys.push(k);
-	}
+	const unique_keys = [...new Set(Object.keys(_details))];
 
 	// console.log('unique_keys', unique_keys);
 
