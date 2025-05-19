@@ -681,26 +681,93 @@ export async function cancelOrder(productId, currencyLabel, isLong) {
 
 }
 
-// TODO: If we have separate endpoint for fetching price at specific timestamp (without rounding-up), use that insted
-export async function fetchClosePriceAtTimestamp(timestampSec, productSymbol, resolution = 60) {
-	const resolution_mins = resolution / 60;
+// timestamp unit should be milliseconds
+export async function getCandleDataAtTimestamp(timestamp, productSymbol, isAdjusted) {
+	let tradeTimestampMs;
 
-	const url = `http://localhost:3000/products/${productSymbol}/candles?granularity=${resolution_mins}m&start=${timestampSec}&end=${timestampSec}`;
-
+	// Step 1: Fetch trade
 	try {
-		const response = await fetch(url);
-		const data = await response.json();
+		const tradeUrl = `https://api.polygon.io/v3/trades/${productSymbol}?timestamp.lte=${timestamp}&order=desc&limit=1&sort=timestamp&apiKey=${process.env.POLYGON_API_KEY}`;
+		const tradeResponse = await fetch(tradeUrl);
+		const { results } = await tradeResponse.json();
 
-		if (!Array.isArray(data) || data.length === 0) {
-			console.warn('No candle data returned for timestamp:', timestampSec);
+		if (!Array.isArray(results) || results.length === 0) {
+			console.warn('No trade data returned for timestamp:', timestamp);
 			return null;
 		}
 
-		const candle = data[0];
-		const closePrice = candle[4]; // [timestamp, open, high, low, close]
-		return closePrice;
-	} catch (error) {
-		console.error('Error fetching candle:', error);
+		const tradeTimestampNs = results[0].participant_timestamp;
+		tradeTimestampMs = Math.floor(tradeTimestampNs / 1_000_000);
+		// console.log('Trade timestamp (ms):', tradeTimestampMs);
+	} catch (err) {
+		console.error('Error fetching trade data:', err);
+		return null;
+	}
+
+	// Step 2: Fetch candle
+	try {
+		const candleUrl = `https://api.polygon.io/v2/aggs/ticker/${productSymbol}/range/1/minute/${tradeTimestampMs}/${tradeTimestampMs}?adjusted=${isAdjusted}&sort=asc&apiKey=${process.env.POLYGON_API_KEY}`;
+		const candleResponse = await fetch(candleUrl);
+		const { results: candleResults } = await candleResponse.json();
+
+		if (!Array.isArray(candleResults) || candleResults.length === 0) {
+			console.warn('No candle data returned for timestamp:', tradeTimestampMs);
+			return null;
+		}
+
+		// console.log('Candle data:', candleResults);
+		return candleResults[0];
+	} catch (err) {
+		console.error('Error fetching candle data:', err);
 		return null;
 	}
 }
+
+export async function getAdjustmentFactorAtTimestamp(timestamp, productSymbol) {
+	try {
+		const adjusted = await getCandleDataAtTimestamp(timestamp, productSymbol, true);
+		const unadjusted = await getCandleDataAtTimestamp(timestamp, productSymbol, false);
+
+		if (!adjusted || !unadjusted) {
+			console.warn('Missing adjusted or unadjusted data for adjustment factor calculation.');
+			return null;
+		}
+
+		const adjustedClose = adjusted.c;
+		const unadjustedClose = unadjusted.c;
+
+		if (unadjustedClose === 0) {
+			console.warn('Unadjusted close is zero — invalid for division.');
+			return null;
+		}
+
+		const adjustmentFactor = adjustedClose / unadjustedClose;
+		// console.log(`Adjustment factor: ${adjustmentFactor}`);
+		return adjustmentFactor;
+
+	} catch (error) {
+		console.error('Error computing adjustment factor:', error);
+		return null;
+	}
+}
+
+export async function getAdjustedEntryPrice(entryPrice, timestamp, productSymbol) {
+	try {
+		const factor = await getAdjustmentFactorAtTimestamp(timestamp, productSymbol);
+
+		if (!factor) {
+			console.warn('Could not compute adjustment factor. Returning original entry price.');
+			return entryPrice;
+		}
+
+		const adjustedEntryPrice = entryPrice * factor;
+		// console.log(`Original Entry Price: ${entryPrice}`);
+		// console.log(`Adjusted Entry Price: ${adjustedEntryPrice}`);
+		return adjustedEntryPrice;
+
+	} catch (error) {
+		console.error('Error computing adjusted entry price:', error);
+		return entryPrice;
+	}
+}
+

@@ -12,7 +12,7 @@ import Pool from '../components/pages/Pool.svelte'
 import Buy from '../components/pages/Buy.svelte'
 
 import { hydrateData } from './data'
-import { fetchClosePriceAtTimestamp, getProduct } from './methods'
+import { getAdjustedEntryPrice, getProduct } from './methods'
 import { parseErrorToString } from './errors'
 
 import { component, currentPage, activeModal, toast, chainId, activeProducts, productId, positions } from './stores'
@@ -128,7 +128,9 @@ export async function calculateLiquidationPrice(params) {
 
 	if (!price || !leverage) return null;
 
-	const adjustedEntryPrice = await fetchClosePriceAtTimestamp(timestamp, productId);
+	const polygonTickerSymbol = PRODUCTS[productId].polygonTickerSymbol;
+
+	const adjustedEntryPrice = await getAdjustedEntryPrice(price, timestamp, polygonTickerSymbol);
 	if (!adjustedEntryPrice) {
 		console.warn('Missing adjusted entry price');
 		return null;
@@ -345,20 +347,19 @@ export async function getUPL(position, latestPrice) {
 	let upl = 0;
 	if (position.price * 1 == 0) return undefined;
 
-	// fetch the adjusted price at the time of entry
-	const adjustedPriceAtEntry = await fetchClosePriceAtTimestamp(position.timestamp, position.productId);
-	if (!adjustedPriceAtEntry) {
-		console.warn('Failed to fetch historical price for adjustment');
+	const polygonTickerSymbol = PRODUCTS[position.productId].polygonTickerSymbol;
+
+	// calculate the adjusted price at the time of entry
+	const adjustedEntryPrice = await getAdjustedEntryPrice(
+		position.price,
+		position.timestamp,
+		polygonTickerSymbol
+	);
+
+	if (!adjustedEntryPrice) {
+		console.warn('Failed to compute adjusted entry price for position:', position);
 		return undefined;
 	}
-
-	// compute adjustment factor using original (unadjusted) entry price
-	const adjustmentFactor = adjustedPriceAtEntry / position.price;
-
-	// TODO: This is implemented in a way that we agreed on Brian but in the current granularity levels adjustedEntryPrice = adjustedPriceAtEntry
-	// and calculating adjusting factor is unnecessary. Check this again when we have a real DxFeed integration
-	// adjusted entry price
-	const adjustedEntryPrice = position.price * adjustmentFactor;
 
 	let priceImpact = getPriceImpact(position.size, position.productId, position.currencyLabel);
 	if (latestPrice) {
