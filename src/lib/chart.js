@@ -1,6 +1,7 @@
 import { get } from 'svelte/store'
 
-import { product, positions, chartResolution, chartLoading } from './stores'
+import { product, positions, chartResolution, chartLoading, productId } from './stores'
+import { PRODUCTS } from './products';
 
 let candles = []; // current candle set
 
@@ -21,6 +22,15 @@ const lookbacks = {
 	3600: 12 * 24 * 60 * 60 * 1000,
 	21600: 6 * 12 * 24 * 60 * 60 * 1000,
 	86400: 24 * 12 * 24 * 60 * 60 * 1000,
+};
+
+const polygonResolutionMap = {
+	60:    { multiplier: 1,   timespan: 'minute' },
+	300:   { multiplier: 5,   timespan: 'minute' },
+	900:   { multiplier: 15,  timespan: 'minute' },
+	3600:  { multiplier: 1,   timespan: 'hour' },
+	21600: { multiplier: 6,   timespan: 'hour' },
+	86400: { multiplier: 1,   timespan: 'day' }
 };
 
 let sidebarWidth = 300;
@@ -132,11 +142,10 @@ export function initChart() {
 
 }
 
-// timezone corrected time in seconds
-function correctedTime(time) {
+// timezone-corrected time in seconds (input: milliseconds)
+function correctedTime(timeInMs) {
 	const timezoneOffsetMinutes = new Date().getTimezoneOffset();
-	//console.log('timezoneOffsetMinutes', timezoneOffsetMinutes);
-	return time-(timezoneOffsetMinutes*60)
+	return Math.floor(timeInMs / 1000) - (timezoneOffsetMinutes * 60);
 }
 
 export function applyWatermark() {
@@ -197,32 +206,35 @@ export async function loadCandles(_resolution, _start, _end, prepend, productOve
 
 	// console.log('start, end', start, end, new Date(start).toString(), new Date(end).toString());
 
-	const url_start = Math.floor(start / 1000);
-	const url_end = Math.floor(end / 1000);
-
 	// TODO: update this based on the used backend, we're using mock price provider which expects in minutes
 	const resolution_mins = Number(_resolution) / 60; 
 
-	const response = await fetch(`http://localhost:3000/products/${_product}/candles?granularity=${resolution_mins}m&start=${url_start}&end=${url_end}`);
-	const json = await response.json();
+	const polygonTickerSymbol = PRODUCTS[_product].polygonTickerSymbol;
 
-	if (!json || !Array.isArray(json)) {
-		return console.log('json invalid', json);
+	const polygonResolution = polygonResolutionMap[_resolution];
+	const { multiplier, timespan } = polygonResolution;
+
+	const response = await fetch(`https://api.polygon.io/v2/aggs/ticker/${polygonTickerSymbol}/range/${multiplier}/${timespan}/${start}/${end}?adjusted=true&sort=asc&apiKey=${process.env.POLYGON_API_KEY}`);
+
+	const { resultsCount, results } = await response.json();
+
+	if (resultsCount == 0) {
+		return console.log('no candle data between specified time interval');
 	}
 
 	if (prepend) {
 		// prepend candles to existing set
 		let prepend_set = [];
-		for (const item of json) {
+		for (const item of results) {
 			// TODO: This is temporary solution to fix duplicate data as the backend includes both start time and end time while returning data
-			const candleTime = correctedTime(item[0]);
-			if (candles.length && candleTime === candles[0].time) continue; // Skip duplicate
+			const candleTime = correctedTime(item.t);
+			if (candles.length && candleTime === candles[0].time) continue;
 			prepend_set.push({
-				time: correctedTime(item[0]),
-				open: item[1],
-				high: item[2],
-				low: item[3],
-				close: item[4]
+				time: correctedTime(item.t),
+				open: item.o,
+				high: item.h,
+				low: item.l,
+				close: item.c
 			});
 		}
 		// If backend returns prices sorted by decreasing timestamp, apply reverse function
@@ -230,16 +242,13 @@ export async function loadCandles(_resolution, _start, _end, prepend, productOve
 		candles = prepend_set.concat(candles);
 	} else {
 		candles = [];
-		for (const item of json) {
-			// TODO: This is temporary solution to fix duplicate data as the backend includes both start time and end time while returning data
-			const candleTime = correctedTime(item[0]);
-			if (candles.length && candleTime === candles[0].time) continue; // Skip duplicate
+		for (const item of results) {
 			candles.push({
-				time: correctedTime(item[0]),
-				open: item[1],
-				high: item[2],
-				low: item[3],
-				close: item[4]
+				time: correctedTime(item.t),
+				open: item.o,
+				high: item.h,
+				low: item.l,
+				close: item.c
 			});
 		}
 		// If backend returns prices sorted by decreasing timestamp, apply reverse function
@@ -270,7 +279,7 @@ export function onNewPrice(price, timestamp, _product) {
 
 	if (!lastCandle) return;
 
-	timestamp = correctedTime(timestamp/1000);
+	timestamp = correctedTime(timestamp);
 
 	const resolution = Number(get(chartResolution));
 

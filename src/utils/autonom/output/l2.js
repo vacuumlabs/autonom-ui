@@ -1,10 +1,10 @@
 export const CONTRACT_ADDRESSES = {
   "dexes": {
     "cap": {
-      "router": "0xAa2958c946b3a943a10A783D4a3c59c59CC66205",
+      "router": "0x1A7433878F0A71c6124D88d0D3B772d65369Efa8",
       "token": {
-        "usdc": "0x7057C8da8ba8af560b0c059Ba40105EFe16Bd2d1",
-        "cap": "0x9b1d5626b341D20C35DdE0a47ABAa12cA5ee90D2"
+        "usdc": "0x67B50fd632298DcC0c7De83cb12A78d5319EdD3F",
+        "cap": "0x4740f71017f6aF5f470b05eC5aDeDf891eB895ee"
       }
     }
   }

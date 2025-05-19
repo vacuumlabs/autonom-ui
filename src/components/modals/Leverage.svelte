@@ -25,14 +25,14 @@
 	}
 
 	let liquidationPriceShort, liquidationPriceLong;
-	function calcLiqPrices(_leverage, price) {
-		liquidationPriceShort = calculateLiquidationPrice({
+	async function calcLiqPrices(_leverage, price) {
+		liquidationPriceShort = await calculateLiquidationPrice({
 			productId: $productId,
 			price,
 			leverage: _leverage,
 			isLong: false
 		});
-		liquidationPriceLong = calculateLiquidationPrice({
+		liquidationPriceLong = await calculateLiquidationPrice({
 			productId: $productId,
 			price,
 			leverage: _leverage,

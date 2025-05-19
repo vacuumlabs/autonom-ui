@@ -3,6 +3,7 @@
 // 2. Autonom supports two different collaterals (weth and usdc). We need to know price of weth in some parts. So, we need to get ETH-USD price data from price service.
 export const PRODUCTS = {
 	'ETH-USD': {
+		polygonTickerSymbol: 'X:ETHUSD',
 		hours: '24/7',
 		logo: '/logos/ETH.svg',
 		baseSpread: 0.0001,
@@ -14,6 +15,7 @@ export const PRODUCTS = {
 		}
 	},
 	'AAPL-USD': {
+		polygonTickerSymbol: 'AAPL',
 		hours: '24/7',
 		logo: '/logos/BTC.svg',
 		baseSpread: 0.0001,

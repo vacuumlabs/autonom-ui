@@ -77,21 +77,30 @@ let lastMessageReceived;
 let s;
 
 function getPrice(product_id) {
+	const polygonTickerSymbol = PRODUCTS[product_id].polygonTickerSymbol;
 
-	fetch('http://localhost:3000/products/' + product_id + '/ticker')
+	fetch(`https://api.polygon.io/v2/last/trade/${polygonTickerSymbol}?apiKey=${process.env.POLYGON_API_KEY}`)
 	.then((res) => { return res.json() })
 	.then((json) => {
 		lastMessageReceived = Date.now();
 
-		const price = json.price;
+		const {p: price, y: timestamp} = json.results;
 
-		prices.update((x) => {
-			x[product_id] = price * 1;
-			return x;
-		});
+		// it may lose precision but it's not important for now since the loss is less then 1 milliseconds
+		const timestampMilliseconds = Math.floor(timestamp / 1_000_000);
+
+		const currentPrices = get(prices);
+
+		// Only update the store if the price actually changed
+		if (currentPrices[product_id] !== price) {
+			prices.update((x) => {
+				x[product_id] = price * 1;
+				return x;
+			});
+		}
 
 		// update chart
-		onNewPrice(price, Date.now(), product_id);
+		onNewPrice(price, timestampMilliseconds, product_id);
 
 		if (product_id == get(productId)) {
 			setTitle(product_id, price);
@@ -111,12 +120,12 @@ export function initWebsocket() {
 		getPrice(product_id);
 	}
 
-	// Poll for prices every 5 sec
+	// Poll for prices every 10 secs
 	poller = setInterval(() => {
 		for (const product_id of Object.keys(PRODUCTS)) {
 			getPrice(product_id);
 		}
-	}, 5000);
+	}, 10000);
 
 // 	// Stream
 
