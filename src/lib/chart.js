@@ -24,6 +24,15 @@ const lookbacks = {
 	86400: 24 * 12 * 24 * 60 * 60 * 1000,
 };
 
+const polygonResolutionMap = {
+	60:    { multiplier: 1,   timespan: 'minute' },
+	300:   { multiplier: 5,   timespan: 'minute' },
+	900:   { multiplier: 15,  timespan: 'minute' },
+	3600:  { multiplier: 1,   timespan: 'hour' },
+	21600: { multiplier: 6,   timespan: 'hour' },
+	86400: { multiplier: 1,   timespan: 'day' }
+};
+
 let sidebarWidth = 300;
 
 export function initChart() {
@@ -202,7 +211,10 @@ export async function loadCandles(_resolution, _start, _end, prepend, productOve
 
 	const polygonTickerSymbol = PRODUCTS[_product].polygonTickerSymbol;
 
-	const response = await fetch(`https://api.polygon.io/v2/aggs/ticker/${polygonTickerSymbol}/range/1/minute/${start}/${end}?adjusted=true&sort=asc&apiKey=${process.env.POLYGON_API_KEY}`);
+	const polygonResolution = polygonResolutionMap[_resolution];
+	const { multiplier, timespan } = polygonResolution;
+
+	const response = await fetch(`https://api.polygon.io/v2/aggs/ticker/${polygonTickerSymbol}/range/${multiplier}/${timespan}/${start}/${end}?adjusted=true&sort=asc&apiKey=${process.env.POLYGON_API_KEY}`);
 
 	const { resultsCount, results } = await response.json();
 
