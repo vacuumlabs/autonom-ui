@@ -13,7 +13,7 @@ import { PRODUCTS } from './products'
 let ws;
 let h;
 let subscribedProducts = {
-	'ETH-USD': true
+	'X:ETHUSD': true
 };
 
 function heartbeat() {
@@ -77,9 +77,7 @@ let lastMessageReceived;
 let s;
 
 function getPrice(product_id) {
-	const polygonTickerSymbol = PRODUCTS[product_id].polygonTickerSymbol;
-
-	fetch(`https://api.polygon.io/v2/last/trade/${polygonTickerSymbol}?apiKey=${process.env.POLYGON_API_KEY}`)
+	fetch(`https://api.polygon.io/v2/last/trade/${product_id}?apiKey=${process.env.POLYGON_API_KEY}`)
 	.then((res) => { return res.json() })
 	.then((json) => {
 		lastMessageReceived = Date.now();

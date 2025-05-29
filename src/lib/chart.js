@@ -186,7 +186,7 @@ export async function loadCandles(_resolution, _start, _end, prepend, productOve
 		// try again
 		// console.log('attempting chart again...');
 		setTimeout(() => {
-			loadCandles(_resolution, _start, _end, false, !_product ? 'ETH-USD' : false);
+			loadCandles(_resolution, _start, _end, false, !_product ? 'X:ETHUSD' : false);
 		}, 2000);
 		return;
 	}
@@ -209,12 +209,10 @@ export async function loadCandles(_resolution, _start, _end, prepend, productOve
 	// TODO: update this based on the used backend, we're using mock price provider which expects in minutes
 	const resolution_mins = Number(_resolution) / 60; 
 
-	const polygonTickerSymbol = PRODUCTS[_product].polygonTickerSymbol;
-
 	const polygonResolution = polygonResolutionMap[_resolution];
 	const { multiplier, timespan } = polygonResolution;
 
-	const response = await fetch(`https://api.polygon.io/v2/aggs/ticker/${polygonTickerSymbol}/range/${multiplier}/${timespan}/${start}/${end}?adjusted=true&sort=asc&apiKey=${process.env.POLYGON_API_KEY}`);
+	const response = await fetch(`https://api.polygon.io/v2/aggs/ticker/${_product}/range/${multiplier}/${timespan}/${start}/${end}?adjusted=true&sort=asc&apiKey=${process.env.POLYGON_API_KEY}`);
 
 	const { resultsCount, results } = await response.json();
 

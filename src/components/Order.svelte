@@ -93,7 +93,7 @@
 	async function getSizeInUSD(_currencyLabel, _prices, _size) {
 		if (!_prices || !_currencyLabel || !_size) return 0;
 		if (_currencyLabel == 'weth') {
-			sizeInUSD = _prices['ETH-USD'] * _size;
+			sizeInUSD = _prices['X:ETHUSD'] * _size;
 		} else if (_currencyLabel == 'usdc') {
 			sizeInUSD = 0;
 		}

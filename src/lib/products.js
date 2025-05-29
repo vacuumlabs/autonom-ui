@@ -1,9 +1,8 @@
-// IMPORTANT: ETH-USD should be kept in products in any deployment for two main reasons
+// IMPORTANT: X:ETHUSD should be kept in products in any deployment for two main reasons
 // 1. It's default product in autonom and hardcoded in some other parts as a fallback value
-// 2. Autonom supports two different collaterals (weth and usdc). We need to know price of weth in some parts. So, we need to get ETH-USD price data from price service.
+// 2. Autonom supports two different collaterals (weth and usdc). We need to know price of weth in some parts. So, we need to get X:ETHUSD price data from price service.
 export const PRODUCTS = {
-	'ETH-USD': {
-		polygonTickerSymbol: 'X:ETHUSD',
+	'X:ETHUSD': {
 		hours: '24/7',
 		logo: '/logos/ETH.svg',
 		baseSpread: 0.0001,
@@ -14,8 +13,7 @@ export const PRODUCTS = {
 			usdc: 8000000
 		}
 	},
-	'AAPL-USD': {
-		polygonTickerSymbol: 'AAPL',
+	'AAPL': {
 		hours: '24/7',
 		logo: '/logos/BTC.svg',
 		baseSpread: 0.0001,

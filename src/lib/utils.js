@@ -88,7 +88,7 @@ export function setActiveProducts() {
 	}
 	activeProducts.update((x) => {
 		for (const p in PRODUCTS) {
-			if (!positionProducts[p] && p != _productId && p != 'ETH-USD') {
+			if (!positionProducts[p] && p != _productId && p != 'X:ETHUSD') {
 				delete x[p];
 			} else {
 				x[p] = true;
@@ -128,9 +128,7 @@ export async function calculateLiquidationPrice(params) {
 
 	if (!price || !leverage) return null;
 
-	const polygonTickerSymbol = PRODUCTS[productId].polygonTickerSymbol;
-
-	const adjustedEntryPrice = await getAdjustedEntryPrice(price, timestamp, polygonTickerSymbol);
+	const adjustedEntryPrice = await getAdjustedEntryPrice(price, timestamp, productId);
 	if (!adjustedEntryPrice) {
 		console.warn('Missing adjusted entry price');
 		return null;
@@ -347,13 +345,11 @@ export async function getUPL(position, latestPrice) {
 	let upl = 0;
 	if (position.price * 1 == 0) return undefined;
 
-	const polygonTickerSymbol = PRODUCTS[position.productId].polygonTickerSymbol;
-
 	// calculate the adjusted price at the time of entry
 	const adjustedEntryPrice = await getAdjustedEntryPrice(
 		position.price,
 		position.timestamp,
-		polygonTickerSymbol
+		position.productId
 	);
 
 	if (!adjustedEntryPrice) {

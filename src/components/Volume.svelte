@@ -31,9 +31,9 @@
 
 	function calculateVolume(_prices, _volumeETH, _volumeUSD) {
 		// console.log('calculateVolume', _prices, _volumeETH, _volumeUSD);
-		if (!_prices['ETH-USD']) return;
-		volume_eth = _volumeUSD * 1 / _prices['ETH-USD'] + _volumeETH * 1;
-		volume_usd = _volumeUSD * 1 + _prices['ETH-USD'] * _volumeETH * 1;
+		if (!_prices['X:ETHUSD']) return;
+		volume_eth = _volumeUSD * 1 / _prices['X:ETHUSD'] + _volumeETH * 1;
+		volume_usd = _volumeUSD * 1 + _prices['X:ETHUSD'] * _volumeETH * 1;
 		volume_usd = Math.round(volume_usd);
 	}
 

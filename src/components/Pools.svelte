@@ -102,7 +102,7 @@
 		for (const _currencyLabel of currencyLabels) {
 			if (_currencyLabel == 'weth') {
 				// ETH
-				cumulativeUSDFees += _poolStats[_currencyLabel].cumulativeFees * $prices['ETH-USD'] * 1;
+				cumulativeUSDFees += _poolStats[_currencyLabel].cumulativeFees * $prices['X:ETHUSD'] * 1;
 			} else {
 				// USDC
 				cumulativeUSDFees += _poolStats[_currencyLabel].cumulativeFees * 1;
@@ -319,8 +319,8 @@
 			<div class='stats'>
 				<div class='row'>
 					<div class='label'>Pool Size</div>
-					<div class='value'>{getTVL(_currencyLabel, poolInfo, $address)} {formatCurrency(_currencyLabel)} {#if _currencyLabel == 'weth' && poolInfo && poolInfo.tvl && $prices['ETH-USD']}
-						<!-- <span class='grayed'>(${formatToDisplay($prices['ETH-USD'] * poolInfo.tvl || 0)})</span> -->
+					<div class='value'>{getTVL(_currencyLabel, poolInfo, $address)} {formatCurrency(_currencyLabel)} {#if _currencyLabel == 'weth' && poolInfo && poolInfo.tvl && $prices['X:ETHUSD']}
+						<!-- <span class='grayed'>(${formatToDisplay($prices['X:ETHUSD'] * poolInfo.tvl || 0)})</span> -->
 						{/if}</div>
 				</div>
 				<!-- <div class='row'>
@@ -354,8 +354,8 @@
 						<div class='top-label'>My Rewards</div>
 						<a class:disabled={poolInfo.claimableReward == 0} on:click={() => {collectPoolReward(_currencyLabel)}}>Collect</a></div>
 					<div class='value'>{formatToDisplay(poolInfo.claimableReward) || 0} {formatCurrency(_currencyLabel)} 
-						{#if _currencyLabel == 'weth' && $prices['ETH-USD'] && poolInfo}
-						<span class='grayed'>(${formatToDisplay($prices['ETH-USD'] * poolInfo.claimableReward || 0)})</span>
+						{#if _currencyLabel == 'weth' && $prices['X:ETHUSD'] && poolInfo}
+						<span class='grayed'>(${formatToDisplay($prices['X:ETHUSD'] * poolInfo.claimableReward || 0)})</span>
 						{/if}
 					</div>
 				</div>
@@ -388,7 +388,7 @@
 						{#if poolInfo.tvl}
 							{formatToDisplay(poolInfo.tvl)} 
 							{#if _currencyLabel == 'weth'}
-							<span class='dollar-amount'>(${formatToDisplay($prices['ETH-USD'] * poolInfo.tvl || 0)})</span>
+							<span class='dollar-amount'>(${formatToDisplay($prices['X:ETHUSD'] * poolInfo.tvl || 0)})</span>
 							{/if}
 						{:else if !$address}
 							--
@@ -416,7 +416,7 @@
 						<div class='column column-asset label'>My Rewards</div>
 						<div class='column column-apr'>{formatToDisplay(poolInfo.claimableReward) || 0} {formatCurrency(_currencyLabel)} 
 							{#if _currencyLabel == 'weth'}
-							<span class='dollar-amount'>(${formatToDisplay($prices['ETH-USD'] * poolInfo.claimableReward || 0)})</span>
+							<span class='dollar-amount'>(${formatToDisplay($prices['X:ETHUSD'] * poolInfo.claimableReward || 0)})</span>
 							{/if}
 						</div>
 						<div class='column column-tvl'>
