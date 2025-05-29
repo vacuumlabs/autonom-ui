@@ -53,6 +53,7 @@ export default {
 			preventAssignment: true,
 			'process.env.DEFAULT_CHAIN_ID': process.env.DEFAULT_CHAIN_ID || 31338,
 			'process.env.DEFAULT_RPC_URL': JSON.stringify(process.env.DEFAULT_RPC_URL || 'http://localhost:8555'),
+			'process.env.POLYGON_API_KEY': JSON.stringify(process.env.POLYGON_API_KEY || ''),
 		}),
 
 		production && gzipPlugin(),

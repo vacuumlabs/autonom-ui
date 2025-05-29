@@ -67,11 +67,12 @@
 				price: 0
 			};
 		} else {
-			_existingPosition.liqPrice = calculateLiquidationPrice({
+			_existingPosition.liqPrice = await calculateLiquidationPrice({
 				productId: data.productId,
 				price: _existingPosition.price,
 				leverage: _existingPosition.leverage,
-				isLong: data.isLong
+				isLong: data.isLong,
+				timestamp: _existingPosition.timestamp
 			});
 		}
 
@@ -93,11 +94,12 @@
 
 		// console.log('averagePrice 2', averagePrice, priceImpact, data.isLong);
 
-		let liqPrice = calculateLiquidationPrice({
+		let liqPrice = await calculateLiquidationPrice({
 			productId: data.productId,
 			price: averagePrice,
 			leverage: newLeverage,
-			isLong: data.isLong
+			isLong: data.isLong,
+			timestamp: Date.now()
 		});
 
 		rows = [

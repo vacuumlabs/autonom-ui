@@ -5,12 +5,12 @@ import { PRODUCTS } from './products'
 export const history = writable([]);
 
 // Prices
-export const activeProducts = writable({'ETH-USD': true});
+export const activeProducts = writable({'X:ETHUSD': true});
 export const prices = writable({});
 export const prices24h = writable({});
 
 // New order
-export const productId = writable(localStorage.getItem('productId') || 'ETH-USD');
+export const productId = writable(localStorage.getItem('productId') || 'X:ETHUSD');
 export const product = writable({});
 
 export const currencyLabel = writable(localStorage.getItem('currencyLabel') || 'weth');
